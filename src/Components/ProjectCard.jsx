@@ -1,100 +1,224 @@
-import React, { useEffect, useState } from 'react'
-import { Form } from 'react-bootstrap';
-import { addTodoAPI } from '../services/allApis';
+import React, { useContext, useEffect, useState } from "react";
+import { addTodoAPI,addProjectAPI, userTodoAPI ,userProjectAPI} from "../services/allApis";
 import { CiSquarePlus } from "react-icons/ci";
+import { IoClose } from "react-icons/io5";
+
+import { MdDelete } from "react-icons/md";
+import { addTodoResponseContext } from "../Context/ContextShare";
+import Edit from "./Edit";
+
+
 
 function ProjectCard() {
-  const [todoDetails,setTodoDetails] = useState({
-    todoId:"",description:"",todoStatus:false,createdDate:"",userId:""
-  })
-  useEffect(()=>{
-    if(localStorage.getItem("existingUser")){
-      setTodoDetails({...todoDetails,userId:JSON.parse(localStorage.getItem("existingUser"))._id})
-    }
-  },[])
-  console.log(todoDetails);
+  const {addTodoResponse,setAddTodoResponse} = useContext(addTodoResponseContext)
+  const [todos, setTodos] = useState([]);
+  const [token,setToken] = useState("")
+  const [todoDetails, setTodoDetails] = useState({
+    description: "",
+    todoStatus: false,
+    createdDate: "", 
+    userId: "",
+  });
+  const [projects, setProjects] = useState([]);
+  
 
-  const handleSave = async (e)=>{
-    e.preventDefault()
-    const { todoId,description,todoStatus,createdDate,userId} = todoDetails
-    const reqHeader ={
-      'Content-Type': 'application/json',
+  const getUserProjects = async () => {
+    const reqHeader = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+    try {
+      const result = await userProjectAPI(reqHeader);
+      if (result.status === 200) {
+        setProjects(result.data);
+      } else {
+        alert(result.response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching projects:", error);
     }
-    const result = await addTodoAPI(todoDetails,reqHeader)
-    console.log(result);
+  };
+
+  useEffect(() => {
+    if (token) {
+      getUserProjects();
     }
+  }, [token,addTodoResponse]); // This useEffect will run only when 'token' changes
+
+  useEffect(() => {
+    const storedToken = sessionStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
+  
+  useEffect(() => {
+    const storedToken = sessionStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+      getUserTodos(storedToken);
+    }
+  }, []);
+
+  const getUserTodos = async (token) => {
+    try {
+      const reqHeader = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      };
+      const result = await userTodoAPI(reqHeader);
+      if (result.status === 200) {
+        setTodos(result.data);
+      } else {
+        alert.error(`Failed to fetch todos: ${result.response.data}`);
+      }
+    } catch (error) {
+      alert.error(`Error fetching todos: ${error.message}`);
+    }
+  };
+
+
+
+    useEffect(() => {
+      if (localStorage.getItem("existingUser")&&sessionStorage.getItem("token")) {
+        setTodoDetails({...todoDetails,userId: JSON.parse(localStorage.getItem("existingUser"))._id, })
+        setToken(sessionStorage.getItem("token"))
+      }
+    }, []);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    const { description, createdDate } = todoDetails;
+
+    // Validate required fields
+    if (!description || !createdDate) {
+      alert("Please provide a description and created date for the todo.");
+      return;
+    }
+
+    try {
+      const reqHeader = {
+        "Content-Type": "application/json",
+        "Authorization":`Bearer ${token}`
+      };
+      const result = await addTodoAPI(todoDetails, reqHeader);
+      console.log(result);
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
+  };
+
   return (
     <>
-     <div className="p-4 bg-card rounded-lg w-75 border shadow-md align-items-center justify-content-center mx-auto mb-5 mt-3" style={{}}>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
+      <div className="flex flex-col gap-3">
+      {projects?.length>0?projects?.map(projects=>(
+ 
 
-        <h2 className="h4 font-semibold">Projects</h2>
-        <p >Created: 2022-01-15 10:30 AM</p>
-        </div>
-        <div className='d-flex'>
-            <input type="text" placeholder="Add Task" className="form-control "  
-          value={todoDetails.description} onChange={e=>setTodoDetails({...todoDetails,description:e.target.value})}  
-          />
-          <button style={{width:"fit-content", height:"fit-content"}} className="bg-secondary d-flex align-items-center gap-1 px-3 py-1 text-secondary-foreground rounded  "
-          onClick={handleSave}><CiSquarePlus/> New</button>
-        </div>
-     
-      </div>
-    
-      <div className="bg-white rounded-lg shadow p-2 mb-2">
-        <div className="d-flex justify-between items-center">
-          <div>
-            <h3 className="font-medium">API Integration</h3>
-            <p className="text-sm text-muted-foreground">Created: 2022-01-15 10:30 AM</p>
-          </div>
-          <div className="flex space-x-2">
-            <button className="text-primary-foreground hover:text-primary" undefinedlabel="Edit">
-              <img src="https://openui.fly.dev/openui/24x24.svg?text=✏️" alt="Edit" />
-            </button>
-            <button className="text-destructive-foreground hover:text-destructive" undefinedlabel="Delete">
-              <img src="https://openui.fly.dev/openui/24x24.svg?text=❌" alt="Delete" />
-            </button>
-          </div>
-        </div>
-        <Form.Check
-         reverse
-         label="Completed"
-        name="group1"
-        checked={todoDetails.todoStatus} 
-        onChange={e => setTodoDetails({...todoDetails, todoStatus: e.target.checked})} />
-      </div>
-      <div className=" bg-white rounded-lg shadow p-2 mb-3">
-        <div className="d-flex justify-between items-center">
-          <div>
-            <h3 className="font-medium">New Benefits Plan</h3>
-
-            <p className="text-sm text-muted-foreground">Created: 2022-01-16 2:45 PM</p>
-          </div>
-          <div className="justify-content-around x-2">
-            <button className="text-primary-foreground hover:text-primary" undefinedlabel="Edit">
-              <img src="https://openui.fly.dev/openui/24x24.svg?text=✏️" alt="Edit" />
-            </button>
-            <button className="text-destructive-foreground hover:text-destructive" undefinedlabel="Delete">
-              <img src="https://openui.fly.dev/openui/24x24.svg?text=❌" alt="Delete" />
-            </button>
-          </div>
-        </div>
-        <Form.Check
-            reverse
-            label="Completed"
-            name="group1"
+        <div className="p-4 bg-card rounded shadow-sm w-75 border align-items-center justify-content-center mx-auto">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-xl font-bold">{projects.projectname}</h2>
+              <p>{projects.createdDate}</p>
+            </div>
             
-          />
+            <div className="flex gap-3">
+              <input
+                type="text"
+                placeholder="Add Task"
+                className="form-control border border-border p-1 rounded"
+                value={todoDetails.description}
+                onChange={(e) =>
+                  setTodoDetails({ ...todoDetails, description: e.target.value })
+                }
+              />
+              <input
+                type="date"
+                className="form-control border border-border p-1 rounded"
+                value={todoDetails.createdDate}
+                onChange={(e) =>
+                  setTodoDetails({ ...todoDetails, createdDate: e.target.value })
+                }
+              />
+              <button
+                style={{ width: "fit-content", height: "fit-content" }}
+                className="bg-secondary text-white flex items-center gap-1 px-3 py-1 rounded"
+                onClick={handleSave}
+              >
+                <CiSquarePlus className="font-medium text-xl" /> New
+              </button>
+              <button className="border px-3 py-1 font-bold border-dashed border-border rounded">
+                Edit
+              </button>
+              <button className="border px-3 py-1 rounded text-white font-bold bg-red-600 hover:bg-red-700">
+                Delete
+              </button>
+            </div>
+          </div>
         
+           <div className="grid md:grid-cols-4 grid-cols-2 gap-4">
+           {todos?.length>0?todos?.map(todo=>(
+           <div className="bg-white border rounded-lg p-3">
+             <div className="flex flex-col justify-between">
+               <div className="flex justify-between items-center">
+                 <h3 className=" text-lg font-semibold m-0">
+                   {todo.description}
+                 </h3>
+               </div>
+               <p className="text-sm text-muted-foreground">
+                 {todo.createdDate}
+               </p>
+             </div>
+             <div className="flex justify-between">
+               <div className="flex">
+                 <input
+                   type="checkbox"
+                   id="choose-me"
+                   className="peer hidden"
+                   checked={todoDetails.todoStatus}
+                   onChange={(e) =>
+                     setTodoDetails({
+                       ...todoDetails,
+                       todoStatus: e.target.checked,
+                     })
+                   }
+                 />
+                 <label
+                   htmlFor="choose-me"
+                   className={`select-none cursor-pointer rounded-full py-1 px-4  font-semibold transition-colors duration-200 ease-in-out ${
+                     todoDetails.todoStatus
+                       ? "bg-green-500 text-white"
+                       : "text-gray-700 bg-gray-300"
+                   }`}
+                 >
+                   {todoDetails.todoStatus ? "Completed" : "Uncompleted"}
+                 </label>
+               </div>
+               <div className="flex">
+                 <button label="Edit">
+                   <Edit displayData={todo}/>
+                   <MdDelete className="text-xl"/>
+                 </button>
+               </div>
+             </div>
+           </div>
+       )):
+       <h1>No Tasks</h1>}
+         </div>
+       
+        </div>
+
+
+
+
+        )):<h1>No Projects</h1>}
       </div>
-      <div className="flex justify-content-between align-items-center">
-        <button className="border border-dashed border-border rounded">Edit</button>
-        <button className="border rounded ">Delete</button>
-      </div>
-    </div>
     </>
-  )
+  );
 }
 
-export default ProjectCard
+export default ProjectCard;
+
+
+
+

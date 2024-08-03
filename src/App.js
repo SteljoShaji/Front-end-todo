@@ -6,6 +6,7 @@ import Login from './Pages/Login';
 import Register from './Pages/Register';
 import Auth from './Components/Auth';
 
+
 function App() {
   return (
     <>

@@ -16,7 +16,16 @@ export const addProjectAPI = async (project,header)=>{
     return await commonAPI("POST",`${BASEURL}/projects/add`,project,header)
 }
 
-//addTodos
+//addTodos api
 export const addTodoAPI = async (todo,header)=>{
     return await commonAPI("POST",`${BASEURL}/todos/add`,todo,header)
+}
+
+//user/all-todos
+export const userTodoAPI = async (header)=>{
+    return await commonAPI("GET",`${BASEURL}/user/all-todos`,"",header)
+}
+//user/all-projects
+export const userProjectAPI = async (header)=>{
+    return await commonAPI("GET",`${BASEURL}/user/all-projects`,"",header)
 }

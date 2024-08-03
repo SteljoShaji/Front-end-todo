@@ -1,57 +1,57 @@
-import React, { useEffect, useState } from 'react'
-import { Col, Container, Row, Table } from 'react-bootstrap'
-import ProjectCard from '../Components/ProjectCard'
-import { Link } from 'react-router-dom';
-import AddProject from '../Components/AddProject';
-import './Home.css'
-function Home() {
+import React, { useEffect, useState } from "react";
+import ProjectCard from "../Components/ProjectCard";
+import { Link } from "react-router-dom";
+import AddProject from "../Components/AddProject";
 
-  
-  const [isLoggedIn,setLoggedIn] = useState(false)
-  const [username,setUsername] = useState("")
-  useEffect(()=>{
-    if(localStorage.getItem("existingUser")){
-      setUsername(JSON.parse(localStorage.getItem("existingUser")).username)
+
+
+import "./Home.css";
+
+
+function Home() {
+ 
+  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [showNewComponent, setShowNewComponent] = useState(false);
+ // This useEffect runs only once when the component mounts
+
+  const handleButtonClick = () => {
+    setShowNewComponent(!showNewComponent);
+  };
+
+  useEffect(() => {
+    const existingUser = localStorage.getItem("existingUser");
+    if (existingUser) {
+      setUsername(JSON.parse(existingUser).username);
     }
-  },[])
-  useEffect(()=>{
-    if(localStorage.getItem("existingUser")){
-      setLoggedIn(true)
-    }else{
-      setLoggedIn(false)
-    }
-  },[])
+  }, []);
+
+  useEffect(() => {
+    setLoggedIn(!!sessionStorage.getItem("token"));
+  }, []);
+
   return (
     <>
-   
-    {
-            isLoggedIn?
-            <Link to={'/home'}></Link>:
-            <Link to={'/login'} ></Link>
-          }
-        
+      {isLoggedIn ? <Link to={"/home"} /> : <Link to={"/login"} />}
 
-        
-       
-        {/*All projects*/}
-        <div className='all-projects mt-3  d-flex align-items-center justify-content-center'>
-            
-            <div style={{width:'75vh'}}className='card shadow  mt-3'> 
-            <h1 className='text-center '>Welcome <span className='text-warning'>{username}</span> </h1>
-            </div>
+      <div className="w-screen shadow-sm mb-5 sticky top-0 bg-white">
+        <div className="flex justify-between items-center container h-16">
+          <div>
+            <h1 className="text-2xl font-semibold">
+              Welcome <span className="text-warning">{username}</span>
+            </h1>
+          </div>
+          <div className="p-4">
+            <button onClick={handleButtonClick} className="px-3 py-1 border">
+              {showNewComponent ? "Close Project" : "Add Project"}
+            </button>
+          </div>
         </div>
-
-<div> <button className='btn'>Add Project</button></div>
-
-        
-
-         <ProjectCard/>
-
-
-    <div>   </div>
-          
+      </div>
+      <ProjectCard/>
+      {showNewComponent && <AddProject onClose={() => setShowNewComponent(false)} />}
     </>
-  )
+  );
 }
 
-export default Home
+export default Home;

@@ -29,3 +29,23 @@ export const userTodoAPI = async (header)=>{
 export const userProjectAPI = async (header)=>{
     return await commonAPI("GET",`${BASEURL}/user/all-projects`,"",header)
 }
+
+//editTodo
+export const editTodoAPI = async (todoId, todo, reqHeader) => {
+    return await fetch(`${BASEURL}/todo/edit/${todoId}`, {
+      method: 'PUT',
+      headers: reqHeader,
+      body: JSON.stringify(todo),
+    }).then(response => response.json());
+  };
+
+  
+//deleteTodo
+export const deleteTodoAPI = async (todoId, reqHeader) => {
+    return await commonAPI("DELETE", `${BASEURL}/todo/remove/${todoId}`, {}, reqHeader);
+}
+
+//deleteProject
+export const deleteProjectAPI = async (projectId, header) => {
+    return await commonAPI("DELETE", `${BASEURL}/project/remove/${projectId}`, {}, header);
+};

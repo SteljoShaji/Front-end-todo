@@ -5,7 +5,7 @@ import AddProject from "../Components/AddProject";
 
 
 
-import "./Home.css";
+
 
 
 function Home() {
@@ -32,7 +32,7 @@ function Home() {
 
   return (
     <>
-      {isLoggedIn ? <Link to={"/home"} /> : <Link to={"/login"} />}
+      {isLoggedIn ? <Link to={"/"} /> : <Link to={"/login"} />}
 
       <div className="w-screen shadow-sm mb-5 sticky top-0 bg-white">
         <div className="flex justify-between items-center container h-16">

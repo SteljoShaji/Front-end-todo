@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { addTodoAPI, addProjectAPI, userTodoAPI, userProjectAPI, deleteTodoAPI, deleteProjectAPI } from "../services/allApis";
+import { addTodoAPI, addProjectAPI, userTodoAPI, userProjectAPI, deleteTodoAPI, deleteProjectAPI ,updateTodoStatusAPI} from "../services/allApis";
 import { CiSquarePlus } from "react-icons/ci";
 import { IoClose } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
@@ -140,10 +140,21 @@ function ProjectCard() {
     }
   };
 
-  const handleTodoStatusChange = (todoId, status) => {
+  const handleTodoStatusChange = async (todoId, status) => {
     setTodos(todos.map(todo => todo._id === todoId ? { ...todo, todoStatus: status } : todo));
+    try {
+      const reqHeader = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+      await updateTodoStatusAPI(todoId, status, reqHeader);
+    } catch (error) {
+      console.error("Error updating todo status:", error);
+    }
   };
+  
 
+  
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -238,4 +249,5 @@ function ProjectCard() {
 }
 
 export default ProjectCard;
+
 

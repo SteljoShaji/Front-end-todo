@@ -30,6 +30,17 @@ export const userProjectAPI = async (header)=>{
     return await commonAPI("GET",`${BASEURL}/user/all-projects`,"",header)
 }
 
+
+// updateTodoStatusAPI
+export const updateTodoStatusAPI = async (todoId, status, reqHeader) => {
+    return await fetch(`${BASEURL}/todo/status/${todoId}`, {
+      method: 'PUT',
+      headers: reqHeader,
+      body: JSON.stringify({ todoStatus: status }),
+    }).then(response => response.json());
+  };
+
+  
 //editTodo
 export const editTodoAPI = async (todoId, todo, reqHeader) => {
     return await fetch(`${BASEURL}/todo/edit/${todoId}`, {

@@ -75,7 +75,7 @@ function Auth({register}) {
                   <div className="d-flex align-items-center flex-column">
                     <div className="d-flex mt-2 text-light">
                     <i className='fa-brands fa-stack-overflow fa-bounce fa-3x me-3'></i>
-                    <span className='h1 fw-bolder mb-0'>Project Fair</span>
+                    <span className='h1 fw-bolder mb-0'>TODO LIST</span>
                     </div>
                     <h5 className='fw-normal mt-4 pb-3 text-light'>
                         {
